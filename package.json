@@ -1,0 +1,24 @@
+{
+  "name": "stream-groupby",
+  "version": "0.0.1",
+  "description": "groupby for stream json object,it's collection tookit part.",
+  "main": "groupby.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+    "sortset": "^1.0.2",
+    "through": "^2.3.7"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "groupby",
+    "stream",
+    "collection"
+  ],
+  "author": "bona shen",
+  "license": "ISC"
+}

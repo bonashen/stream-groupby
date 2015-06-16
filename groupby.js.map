@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "groupby.js",
+  "sourceRoot": "",
+  "sources": [
+    "groupby.coffee"
+  ],
+  "names": [],
+  "mappings": ";AACA;AAAA,MAAA;;EAAA,OAAA,GAAU,OAAA,CAAQ,SAAR;;EACV,OAAA,GAAU,OAAA,CAAQ,SAAR,CAAkB,CAAC;;EAE7B,OAAA,GAAU,MAAM,CAAC,OAAP,GAAe,OAAA,GAAU,SAAC,KAAD;AACjC,QAAA;IAAA,KAAA,GAAQ,SAAC,GAAD,GAAA;IAER,GAAA,GAAM,SAAA,GAAA;IAEN,CAAA,GAAI,OAAA,CAAQ,KAAR,EAAc,GAAd;WAEJ;EAPiC;AAHnC"
+}
