@@ -1,13 +1,21 @@
 #groupby for stream json object
+# grouppby = require 'stream-groupby'
+# groupby("name,age",function(){}).stream()
+# groupby("name,age",function(){}).readArray([])
+# groupby("name,age",function(){}).readIterator(new Iterator)
+# groupby([{name:'serise1',exec:function(){}}]).stream()
+# groupby([{name:'serise1',key:'name'},{name:'serise2',key:'age'}]).stream()
+
+
 through = require 'through'
 SortMap = require('sortset').SortMap
 Iterator = require('sortset').Iterator
 st = require "stream-total"
 
-#Éè¼ÆË¼Â·
-# ·Ö×éÌõ¼þ£¨·Ö×é¹æÔò)----->·Ö×éÊý¾Ý ----->·Ö×éÍ³¼ÆÓë±éÀú
+#è®¾è®¡æ€è·¯
+# åˆ†ç»„æ¡ä»¶ï¼ˆåˆ†ç»„è§„åˆ™)----->åˆ†ç»„æ•°æ® ----->åˆ†ç»„ç»Ÿè®¡ä¸ŽéåŽ†
 
-# example(Ê¹ÓÃÑùÀý):
+# example(ä½¿ç”¨æ ·ä¾‹):
 # groupBy("name,age").stream(template) //for stream
 
 # groupBy("name,age").readArray([]).total({})
@@ -26,7 +34,19 @@ class DoubleChain
     if @isTail() then @ else @right.tail()
 
   orderNumber:->
-    if @isHead() then 1 else 1+@previous().orderNumber()
+    if @isHead() then 0 else 1+@previous().orderNumber()
+
+  count:->
+    @tail().orderNumber()+1
+
+  indexOf:(item)->
+    ret = -1
+    if item isnt null
+      @forEach (i)->
+        if i is item
+          ret = i.orderNumber()
+          true
+    ret
 
   previous: ->
     @left
@@ -36,11 +56,47 @@ class DoubleChain
     @left is null
   isTail:->
     @right is null
-  forEach:->
+  forEach:(callback)->
+    if 'function' is typeof callback
+      item = @head()
+      while item isnt null and callback(item) in [undefined ,null,false]
+        item = item.next()
+      return
 
-  insert:(item)->
+  get:(pos)->
+    ret=null
+    @forEach (item)->
+      if item.orderNumber()==pos
+        ret = item
+        true
+    ret
+# insert before self
+  insert:(value)->
+    right = @
+    if right.isHead()
+      dc = @addHead()
+      dc.value = value
+    else
+      dc= new DoubleChain(value)
+      dc.left = right.left
+      dc.right = right
+      right.left.right=dc
+      right.left = dc
+    dc
 
-  remove:(item)->
+  remove:->
+    item = @
+    if @count()>1 and @indexOf(item)>-1
+      if item.isHead()
+        item.right.left = null
+      else
+        item.right.left = item.right
+
+      if item.isTail()
+        item.left.right = null
+      else
+        item.left.right = item.right
+
 
   addHead:->
     ret = new DoubleChain
@@ -56,14 +112,19 @@ class DoubleChain
     ret
 
 DoubleChain.factory =(array)->
+  head = new DoubleChain
+  if array instanceof Array and array.length
+    for item in array
+      head.addTail().value = item
+  ret = head.next()
+  head.remove()
+  ret
 
-
-
-#·Ö×éÆ÷£¬¶ÁÈ¡Êý¾Ý²¢½øÐÐ·Ö×é
+#åˆ†ç»„å™¨ï¼Œè¯»å–æ•°æ®å¹¶è¿›è¡Œåˆ†ç»„
 class Packet
   constructor:(@rulers)->
     @series= new Series
-  # for stream,like @readIterator(iterator).total(template)
+# for stream,like @readIterator(iterator).total(template)
   stream:(template)->
 
   readArray:(array)->
@@ -77,21 +138,21 @@ class Packet
       pre_series = null
       Iterator.forEach(d_series,(data)->
         series =
-            left:null
-            right: null
-            key: data.key
-            value: data.value
-            details:[]
-            top:->
-              if @left isnt null
-                @
-              else
-                @left.top()
-            tail:->
-              if @right isnt null
-                @
-              else
-                @right.tail()
+          left:null
+          right: null
+          key: data.key
+          value: data.value
+          details:[]
+          top:->
+            if @left isnt null
+              @
+            else
+              @left.top()
+          tail:->
+            if @right isnt null
+              @
+            else
+              @right.tail()
         if not pre_series?
           series.details.push doc
         if pre_series?
@@ -102,7 +163,7 @@ class Packet
 
 
 
-#·Ö×éÊý¾Ý
+#åˆ†ç»„æ•°æ®
 class Series
   constructor:->
     @data = new SortMap
