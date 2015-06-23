@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "sortset": "^1.0.2",
+    "stream-total": "^1.0.3",
     "through": "^2.3.7"
   },
   "devDependencies": {},
